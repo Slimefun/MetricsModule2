@@ -6,6 +6,8 @@ import org.bstats.charts.SimplePie;
 import org.bstats.json.JsonObjectBuilder;
 import org.bukkit.Server;
 
+import java.lang.reflect.Method;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -18,7 +20,14 @@ public class CompatibilityModeChart extends SimplePie implements SlimefunMetrics
 
     public CompatibilityModeChart() {
         super("compatibility_mode", () -> {
-            boolean enabled = Slimefun.getRegistry().isBackwardsCompatible();
+            boolean enabled;
+            try {
+                final Method method = Slimefun.getRegistry().getClass().getDeclaredMethod("isBackwardsCompatible");
+                enabled = (boolean) method.invoke(Slimefun.getRegistry());
+            } catch(Exception e) {
+                enabled = false;
+            }
+
             return enabled ? "enabled" : "disabled";
         });
     }
